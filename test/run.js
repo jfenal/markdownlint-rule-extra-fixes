@@ -49,8 +49,8 @@ if (withFix.length === 0) {
 }
 
 const fixed = applyFixes(fixture, errors);
-if (!fixed.includes("```text") && !fixed.includes("```bash")) {
-  console.error("Expected fixed content to contain ```text or inferred language. Got:\n", fixed);
+if (!fixed.includes("```fixme") && !fixed.includes("```text") && !fixed.includes("```bash")) {
+  console.error("Expected fixed content to contain ```fixme, ```text, or inferred language. Got:\n", fixed);
   process.exit(1);
 }
 
@@ -66,4 +66,28 @@ if (!fixed2.includes("fixme_url")) {
   process.exit(1);
 }
 
-console.log("OK: MD040-fix and MD042-fix produced expected fixes.");
+// Perl code without shebang is not inferred as "perl" (inferrer has no pattern for it).
+// We allow that: the block gets default language (text). This test asserts that behavior.
+const perlNoShebang = `# Doc
+
+\`\`\`
+my $name = shift;
+while (<>) { chomp; say $_ if /$name/; }
+\`\`\`
+`;
+const results3 = lint({
+  strings: { "perl-no-shebang.md": perlNoShebang },
+  config,
+  customRules: extraFixes,
+});
+const fixed3 = applyFixes(perlNoShebang, results3["perl-no-shebang.md"] || []);
+if (!fixed3.includes("```fixme")) {
+  console.error("Expected Perl (no shebang) block to get default language 'fixme'. Got:\n", fixed3);
+  process.exit(1);
+}
+if (fixed3.includes("```perl")) {
+  console.error("Perl without shebang should not be inferred as perl (allowed to fail inference). Got:\n", fixed3);
+  process.exit(1);
+}
+
+console.log("OK: MD040-fix and MD042-fix produced expected fixes; Perl without shebang correctly gets default language.");

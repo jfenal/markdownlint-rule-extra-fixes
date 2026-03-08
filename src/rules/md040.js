@@ -14,7 +14,7 @@ export default {
   parser: "none",
   function: function MD040(params, onError) {
     const lines = params.lines;
-    const defaultLanguage = params.config?.default_language ?? "text";
+    const defaultLanguage = params.config?.default_language ?? "fixme";
     const useInference = params.config?.infer_language === true;
 
     let i = 0;
