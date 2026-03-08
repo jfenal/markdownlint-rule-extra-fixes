@@ -21,6 +21,10 @@ const config = {
   "MD041-fix": true,
   MD042: false,
   "MD042-fix": true,
+  MD022: false,
+  "MD022-fix": true,
+  MD031: false,
+  "MD031-fix": true,
   MD036: false,
   "MD036-fix": true,
   MD033: false,
@@ -90,4 +94,59 @@ if (fixed3.includes("```perl")) {
   process.exit(1);
 }
 
-console.log("OK: MD040-fix and MD042-fix produced expected fixes; Perl without shebang correctly gets default language.");
+// MD022-fix: headings surrounded by blank lines
+const noBlanksAroundHeadings = "text before\n# Heading\ntext after";
+const results4 = lint({
+  strings: { "md022.md": noBlanksAroundHeadings },
+  config,
+  customRules: extraFixes,
+});
+const fixed4 = applyFixes(noBlanksAroundHeadings, results4["md022.md"] || []);
+if (!fixed4.includes("\n\n# Heading\n\n")) {
+  console.error("Expected MD022-fix to add blank lines around heading. Got:\n", JSON.stringify(fixed4));
+  process.exit(1);
+}
+
+// MD031-fix: blanks around fenced code blocks
+const noBlanksAroundFence = "paragraph\n```\ncode\n```\nparagraph";
+const results5 = lint({
+  strings: { "md031.md": noBlanksAroundFence },
+  config,
+  customRules: extraFixes,
+});
+const fixed5 = applyFixes(noBlanksAroundFence, results5["md031.md"] || []);
+if (!fixed5.includes("\n\n```") || !fixed5.includes("```\n\nparagraph")) {
+  console.error("Expected MD031-fix to add blank lines around fenced block. Got:\n", JSON.stringify(fixed5));
+  process.exit(1);
+}
+
+// MD033-fix: placeholder-style angle brackets in invocation examples are not wrapped as HTML
+const invocationExample = "Use --output=<path> and <value> in config.";
+const results6 = lint({
+  strings: { "md033-placeholder.md": invocationExample },
+  config,
+  customRules: extraFixes,
+});
+const fixed6 = applyFixes(invocationExample, results6["md033-placeholder.md"] || []);
+if (fixed6.includes("`<path>`") || fixed6.includes("`<value>`")) {
+  console.error("Expected MD033-fix to leave placeholder tags <path> and <value> unchanged. Got:", fixed6);
+  process.exit(1);
+}
+if (!fixed6.includes(" and <value> ")) {
+  console.error("Expected <value> to remain unwrapped. Got:", fixed6);
+  process.exit(1);
+}
+// Real HTML without attribute should still be wrapped when not in placeholder list
+const withSpan = "See <span>here</span>.";
+const results6b = lint({
+  strings: { "md033-span.md": withSpan },
+  config,
+  customRules: extraFixes,
+});
+const fixed6b = applyFixes(withSpan, results6b["md033-span.md"] || []);
+if (!fixed6b.includes("`<span>") || !fixed6b.includes("</span>`")) {
+  console.error("Expected MD033-fix to wrap <span> in backticks. Got:", fixed6b);
+  process.exit(1);
+}
+
+console.log("OK: MD040-fix, MD042-fix, MD022-fix, MD031-fix, MD033-fix (placeholder) produced expected fixes; Perl without shebang correctly gets default language.");
