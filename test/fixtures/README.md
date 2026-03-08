@@ -12,6 +12,8 @@ Or with a config that enables all `-fix` rules (see main README). After `--fix`,
 |------|------------------|
 | `md013-line-length.md` | MD013-fix (long lines: paragraph, list, blockquote) |
 | `md033-inline-html.md` | MD033-fix (strong, em, br, a, span→backticks) |
+| `md022-blanks-around-headings.md` | MD022-fix (insert blank lines before/after headings) |
+| `md031-blanks-around-fenced-code.md` | MD031-fix (insert blank lines before/after fenced code blocks) |
 | `md036-emphasis-as-heading.md` | MD036-fix (**Bold** / *Italic* only line → heading) |
 | `md040-fenced-code-language.md` | MD040-fix (``` with no language; infers bash, json, javascript, perl/ruby via shebang, python, php, yaml, sql; Perl without shebang is not inferred → default) |
 | `md041-first-line-heading.md` | MD041-fix (no top-level heading → prepend default) |

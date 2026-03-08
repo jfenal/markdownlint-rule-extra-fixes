@@ -64,7 +64,9 @@ Fixes from these rules are applied together with markdownlint's built-in fixes. 
 | Rule        | Description | Config |
 |------------|-------------|--------|
 | **MD013-fix** | Line length. Wraps paragraphs, list items, blockquotes. | `line_length` (default: 80) |
-| **MD033-fix** | No inline HTML. Converts common tags to markdown, wraps rest in backticks. | `convert_elements`, `quote_remaining_as_code` |
+| **MD022-fix** | Blanks around headings. Inserts blank line(s) before/after headings when missing. | `lines_above`, `lines_below` (default: 1) |
+| **MD031-fix** | Blanks around fenced code blocks. Inserts blank line before/after code blocks when missing. | `list_items` (default: true; when false, skips blank-before when block follows list item) |
+| **MD033-fix** | No inline HTML. Converts common tags to markdown, wraps rest in backticks. | `convert_elements`, `quote_remaining_as_code`, `allow_placeholder_tags` (e.g. `["path","value"]`; default list avoids treating invocation placeholders like `<path>` as HTML; use `false` or `[]` to disable) |
 | **MD036-fix** | Emphasis as heading. Converts a line that is only `**Bold**` / `*Italic*` into a heading. | `heading_level` (default: 2) |
 | **MD040-fix** | Fenced code language. Inserts default or inferred language after opening fence. | `default_language` (default: "fixme"), `infer_language` |
 | **MD041-fix** | First line heading. Prepends a top-level heading when missing. | `default_heading` (default: "Document") |
@@ -91,6 +93,10 @@ Fixes from these rules are applied together with markdownlint's built-in fixes. 
     "MD033-fix": { "quote_remaining_as_code": true },
     "MD013": false,
     "MD013-fix": { "line_length": 80 },
+    "MD022": false,
+    "MD022-fix": { "lines_above": 1, "lines_below": 1 },
+    "MD031": false,
+    "MD031-fix": { "list_items": true },
     "MD047": false,
     "MD047-fix": true
   },
