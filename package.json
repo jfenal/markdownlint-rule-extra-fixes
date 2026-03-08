@@ -1,0 +1,36 @@
+{
+  "name": "markdownlint-rule-extra-fixes",
+  "version": "0.1.0",
+  "description": "Custom markdownlint rules that add fixInfo for MD040 and other rules the core does not fix",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jfenal/markdownlint-rule-extra-fixes.git"
+  },
+  "keywords": [
+    "markdownlint-rule",
+    "markdownlint",
+    "markdown",
+    "lint",
+    "fix"
+  ],
+  "peerDependencies": {
+    "markdownlint": ">=0.40.0"
+  },
+  "devDependencies": {
+    "markdownlint": "^0.40.0"
+  },
+  "scripts": {
+    "test": "node test/run.js"
+  },
+  "files": [
+    "src"
+  ]
+}
