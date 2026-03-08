@@ -4,16 +4,13 @@ Custom [markdownlint](https://github.com/DavidAnson/markdownlint) rules that pro
 
 **Repository:** [https://github.com/jfenal/markdownlint-rule-extra-fixes](https://github.com/jfenal/markdownlint-rule-extra-fixes)
 
+**AI attribution:** Some code and documentation in this repository were developed with AI-assisted tooling (e.g. Cursor). The maintainer reviews and takes responsibility for all contributions.
+
+**Note:** npm publication is not planned; install from this Git repo or use a local path (see below).
+
 ## Install
 
 Install [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) (if not already in your project) and the plugin using one of the options below.
-
-**From npm** (when the package is published):
-
-```bash
-npm install markdownlint-cli2 markdownlint-rule-extra-fixes
-# or: yarn add / pnpm add
-```
 
 **Locally (same repo)**  
 Point `customRules` at this directory. In `.markdownlint-cli2.jsonc`:
@@ -69,7 +66,7 @@ Fixes from these rules are applied together with markdownlint's built-in fixes. 
 | **MD013-fix** | Line length. Wraps paragraphs, list items, blockquotes. | `line_length` (default: 80) |
 | **MD033-fix** | No inline HTML. Converts common tags to markdown, wraps rest in backticks. | `convert_elements`, `quote_remaining_as_code` |
 | **MD036-fix** | Emphasis as heading. Converts a line that is only `**Bold**` / `*Italic*` into a heading. | `heading_level` (default: 2) |
-| **MD040-fix** | Fenced code language. Inserts default or inferred language after opening fence. | `default_language`, `infer_language` |
+| **MD040-fix** | Fenced code language. Inserts default or inferred language after opening fence. | `default_language` (default: "fixme"), `infer_language` |
 | **MD041-fix** | First line heading. Prepends a top-level heading when missing. | `default_heading` (default: "Document") |
 | **MD042-fix** | No empty links. Replaces empty `]( )` / `](#)` with a URL. | `url_placeholder` (default: "fixme_url") |
 | **MD047-fix** | Trailing newline. Ensures file ends with a single newline. | — |
@@ -81,7 +78,7 @@ Fixes from these rules are applied together with markdownlint's built-in fixes. 
   "config": {
     "MD040": false,
     "MD040-fix": {
-      "default_language": "text",
+      "default_language": "fixme",
       "infer_language": true
     },
     "MD041": false,
