@@ -11,6 +11,7 @@ export default {
   tags: ["links"],
   parser: "none",
   function: function MD042Fix(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     const urlReplacement = params.config?.url_placeholder ?? DEFAULT_EMPTY_LINK_URL;
     for (let i = 0; i < lines.length; i++) {

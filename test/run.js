@@ -149,4 +149,111 @@ if (!fixed6b.includes("`<span>") || !fixed6b.includes("</span>`")) {
   process.exit(1);
 }
 
-console.log("OK: MD040-fix, MD042-fix, MD022-fix, MD031-fix, MD033-fix (placeholder) produced expected fixes; Perl without shebang correctly gets default language.");
+// MD013-fix: inline markdown links must not be split across lines
+const withInlineLinks = "# Links\n\nFor more details, see the [official documentation](https://docs.example.com/very/long/path/to/resource/page) for configuration options.\n";
+const results7 = lint({
+  strings: { "md013-links.md": withInlineLinks },
+  config,
+  customRules: extraFixes,
+});
+const fixed7 = applyFixes(withInlineLinks, results7["md013-links.md"] || []);
+const linkRe = /\[[^\]]*\]\([^)]*\)/g;
+const origLinks = withInlineLinks.match(linkRe) || [];
+const fixedLinks = fixed7.match(linkRe) || [];
+if (origLinks.length !== fixedLinks.length || origLinks[0] !== fixedLinks[0]) {
+  console.error("Expected MD013-fix to preserve inline links. Original:", origLinks, "Fixed:", fixedLinks);
+  console.error("Fixed content:\n", fixed7);
+  process.exit(1);
+}
+
+// MD041-fix: must not fire when set to false
+const noHeading = "Just a paragraph without a heading.\n";
+const resultsDisabled = lint({
+  strings: { "disabled.md": noHeading },
+  config: { default: true, MD041: false, "MD041-fix": false },
+  customRules: extraFixes,
+});
+const md041Errors = (resultsDisabled["disabled.md"] || []).filter(
+  (e) => e.ruleNames && e.ruleNames.includes("MD041-fix")
+);
+if (md041Errors.length > 0) {
+  console.error("Expected MD041-fix: false to suppress the rule, got", md041Errors.length, "errors");
+  process.exit(1);
+}
+
+// MD036-fix: bold text should become heading
+const boldAsHeading = "# Title\n\n**Introduction**\n\nSome paragraph text.\n";
+const results8 = lint({
+  strings: { "md036.md": boldAsHeading },
+  config,
+  customRules: extraFixes,
+});
+const fixed8 = applyFixes(boldAsHeading, results8["md036.md"] || []);
+if (!fixed8.includes("## Introduction")) {
+  console.error("Expected MD036-fix to convert **Introduction** to ## Introduction. Got:\n", fixed8);
+  process.exit(1);
+}
+if (fixed8.includes("**Introduction**")) {
+  console.error("Expected MD036-fix to remove bold emphasis. Got:\n", fixed8);
+  process.exit(1);
+}
+
+// MD013-fix: adjacent links separated by punctuation must not get a space inserted
+const adjacentLinks = "# Test\n\nThis metric uses [`MET006`](MET006.md)–[`MET009`](MET009.md) when account-level data is available.\n";
+const results9 = lint({
+  strings: { "md013-adjacent.md": adjacentLinks },
+  config,
+  customRules: extraFixes,
+});
+const fixed9 = applyFixes(adjacentLinks, results9["md013-adjacent.md"] || []);
+// The en-dash between the two links must remain directly adjacent (no inserted space)
+if (fixed9.includes("–\n") || fixed9.includes("– [")) {
+  console.error("Expected MD013-fix to not insert space/newline between adjacent links. Got:\n", fixed9);
+  process.exit(1);
+}
+
+// MD013-fix: wrapping inside a list item must not produce a continuation starting with >
+const listWithGt = "# Test\n\n- [`MET050`](MET050.md) — Frequency Count: > 1 OTD per customer in 12 months auto-escalates to Red\n";
+const results10 = lint({
+  strings: { "md013-blockquote.md": listWithGt },
+  config,
+  customRules: extraFixes,
+});
+const fixed10 = applyFixes(listWithGt, results10["md013-blockquote.md"] || []);
+// No continuation line should start with "> " (blockquote marker)
+const fixed10Lines = fixed10.split("\n");
+for (let i = 0; i < fixed10Lines.length; i++) {
+  const stripped = fixed10Lines[i].replace(/^\s+/, "");
+  if (stripped.startsWith("> ") && !fixed10Lines[i].match(/^- /)) {
+    console.error(`Expected MD013-fix to not create blockquote on continuation line ${i + 1}. Got:\n`, fixed10);
+    process.exit(1);
+  }
+}
+
+// MD013-fix: link followed by semicolon must not get separated
+const linkThenSemicolon = "# T\n\n- **Origin:** [Policy](https://docs.google.com/document/d/1CaCSy5cNPdg9FbnVedojALEE6TLfTekAv5vAJGJFE8Q/edit); [Amendment](https://docs.google.com/document/d/other)\n";
+const results11 = lint({
+  strings: { "md013-semicolon.md": linkThenSemicolon },
+  config,
+  customRules: extraFixes,
+});
+const fixed11 = applyFixes(linkThenSemicolon, results11["md013-semicolon.md"] || []);
+if (fixed11.includes(")\n  ;") || fixed11.includes(") ;")) {
+  console.error("Expected MD013-fix to keep ); together after link. Got:\n", fixed11);
+  process.exit(1);
+}
+
+// MD013-fix: link followed by period must not get separated
+const linkThenPeriod = "# T\n\nSee [OPE BRD](https://docs.google.com/document/d/1fQ6Cg7y_ek_KRiFTpIYriwK0Ft1NfEFCxS1fdSdHr6A/edit?tab=t.4z667b7qxg43).\n";
+const results12 = lint({
+  strings: { "md013-period.md": linkThenPeriod },
+  config,
+  customRules: extraFixes,
+});
+const fixed12 = applyFixes(linkThenPeriod, results12["md013-period.md"] || []);
+if (fixed12.includes(")\n.")) {
+  console.error("Expected MD013-fix to keep ). together after link. Got:\n", fixed12);
+  process.exit(1);
+}
+
+console.log("OK: MD040-fix, MD042-fix, MD022-fix, MD031-fix, MD033-fix (placeholder), MD013-fix (links, adjacent-links, no-blockquote, semicolon, period), MD041-fix (disable), MD036-fix (bold→heading) produced expected fixes; Perl without shebang correctly gets default language.");

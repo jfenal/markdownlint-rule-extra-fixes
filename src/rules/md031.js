@@ -15,6 +15,7 @@ export default {
   tags: ["code", "blank_lines"],
   parser: "none",
   function: function MD031Fix(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     const listItems = params.config?.list_items !== false;
     const fixes = [];
