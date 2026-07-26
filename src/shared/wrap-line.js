@@ -1,3 +1,54 @@
+// Match link chains: optional leading paren, a link, optional trailing
+// punctuation, then optionally more links glued on
+// (e.g. `([A](a.md)–[B](b.md))`). Trailing non-space/non-`[` chars after
+// the last `)` are included (e.g. `[text](url).` keeps the period attached).
+const LINK_RE = /\(?!?\[[^\]]*\]\([^)]*\)(?:[^\s\[]*!?\[[^\]]*\]\([^)]*\))*[^\s\[]*/g;
+
+function findLinkCrossing(text, maxLength) {
+  LINK_RE.lastIndex = 0;
+  let m;
+  while ((m = LINK_RE.exec(text)) !== null) {
+    const linkStart = m.index;
+    const linkEnd = m.index + m[0].length;
+    if (linkStart < maxLength && linkEnd > maxLength) {
+      const spaceBefore = text.lastIndexOf(" ", linkStart - 1);
+      if (spaceBefore > 0) return spaceBefore;
+      if (linkStart > 0) return linkStart;
+      return linkEnd;
+    }
+  }
+  return null;
+}
+
+function adjustForLinks(text, breakAt) {
+  LINK_RE.lastIndex = 0;
+  let m;
+  while ((m = LINK_RE.exec(text)) !== null) {
+    const linkStart = m.index;
+    const linkEnd = m.index + m[0].length;
+    if (breakAt > linkStart && breakAt < linkEnd) {
+      const spaceBefore = text.lastIndexOf(" ", linkStart - 1);
+      if (spaceBefore > 0) return spaceBefore;
+      if (linkStart > 0) return linkStart;
+      return linkEnd;
+    }
+  }
+  // Don't break immediately before a link (inserting a newline between
+  // adjacent punctuation and a link changes rendered HTML).
+  LINK_RE.lastIndex = 0;
+  while ((m = LINK_RE.exec(text)) !== null) {
+    const linkStart = m.index;
+    if (breakAt > 0 && breakAt === linkStart) {
+      const spaceBefore = text.lastIndexOf(" ", linkStart - 1);
+      if (spaceBefore > 0) return spaceBefore;
+    }
+  }
+  return breakAt;
+}
+
+// Characters that act as markdown block markers when they start a line.
+const MD_BLOCK_START = /^(?:>|#{1,6}\s|[-*+]\s|\d+\.\s)/;
+
 /**
  * Wrap a single line to maxLength, breaking at sentence/word boundaries.
  */
@@ -5,6 +56,13 @@ export function wrapLine(line, maxLength) {
   const out = [];
   let remaining = line;
   while (remaining.length > maxLength) {
+    const linkBreak = findLinkCrossing(remaining, maxLength);
+    if (linkBreak !== null) {
+      out.push(remaining.slice(0, linkBreak).trimEnd());
+      remaining = remaining.slice(linkBreak).replace(/^\s+/, "");
+      continue;
+    }
+
     const chunk = remaining.slice(0, maxLength + 1);
     const sentenceMatch = chunk.match(/(.*[.!?])\s+(\S*)$/);
     const breakAtSentence = sentenceMatch ? sentenceMatch[1].length : -1;
@@ -26,6 +84,31 @@ export function wrapLine(line, maxLength) {
         }
       }
       breakAt = maxLength;
+    }
+    breakAt = adjustForLinks(remaining, breakAt);
+    // Ensure the continuation line doesn't start with a markdown block marker
+    // (e.g. "> " would become a blockquote, "- " a list item).
+    let tail = remaining.slice(breakAt).replace(/^\s+/, "");
+    if (MD_BLOCK_START.test(tail) && breakAt > 0) {
+      // Try an earlier break point that avoids the marker
+      const earlier = remaining.lastIndexOf(" ", breakAt - 1);
+      if (earlier > maxLength * 0.3) {
+        const altTail = remaining.slice(earlier).replace(/^\s+/, "");
+        if (!MD_BLOCK_START.test(altTail)) {
+          breakAt = earlier;
+          tail = altTail;
+        }
+      }
+      // If no safe earlier break, try a later one
+      if (MD_BLOCK_START.test(tail)) {
+        const later = remaining.indexOf(" ", breakAt + 1);
+        if (later > 0 && later <= remaining.length) {
+          const altTail = remaining.slice(later).replace(/^\s+/, "");
+          if (!MD_BLOCK_START.test(altTail)) {
+            breakAt = later;
+          }
+        }
+      }
     }
     out.push(remaining.slice(0, breakAt).trimEnd());
     remaining = remaining.slice(breakAt).replace(/^\s+/, "");

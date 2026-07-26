@@ -12,6 +12,7 @@ export default {
   tags: ["headings", "blank_lines"],
   parser: "none",
   function: function MD022Fix(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     const linesAbove = Math.max(0, Number(params.config?.lines_above ?? 1));
     const linesBelow = Math.max(0, Number(params.config?.lines_below ?? 1));

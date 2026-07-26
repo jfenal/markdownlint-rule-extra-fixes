@@ -24,6 +24,7 @@ export default {
   tags: ["html"],
   parser: "none",
   function: function MD033Fix(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     const rawConvert = params.config?.convert_elements ?? DEFAULT_CONVERT;
     const convert = Array.isArray(rawConvert) ? rawConvert : [rawConvert];

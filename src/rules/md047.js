@@ -8,6 +8,7 @@ export default {
   tags: ["blank_lines"],
   parser: "none",
   function: function MD047Fix(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     if (lines.length === 0) return;
     const lastLineNumber = lines.length;

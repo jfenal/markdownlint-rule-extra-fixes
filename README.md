@@ -59,15 +59,31 @@ npx markdownlint-cli2 --fix "**/*.md"
 
 Fixes from these rules are applied together with markdownlint's built-in fixes. Disable the corresponding built-in rule when using a `-fix` rule to avoid duplicate violations.
 
+### Config and enablement
+
+Each `-fix` rule is a **separate custom rule** from its core counterpart. Setting `"MD041": false` does **not** disable `MD041-fix` — you must set `"MD041-fix": false` explicitly.
+
+When `"default": true` is set in your config (common), all loaded custom rules are enabled automatically. To selectively disable a fix rule, set it to `false` individually:
+
+```json
+{
+  "config": {
+    "default": true,
+    "MD041": false,
+    "MD041-fix": false
+  }
+}
+```
+
 ## Rules
 
 | Rule        | Description | Config |
 |------------|-------------|--------|
-| **MD013-fix** | Line length. Wraps paragraphs, list items, blockquotes. | `line_length` (default: 80) |
+| **MD013-fix** | Line length. Wraps paragraphs, list items, blockquotes. Preserves inline markdown links — `[text](url)` spans are never split across lines. | `line_length` (default: 80) |
 | **MD022-fix** | Blanks around headings. Inserts blank line(s) before/after headings when missing. | `lines_above`, `lines_below` (default: 1) |
 | **MD031-fix** | Blanks around fenced code blocks. Inserts blank line before/after code blocks when missing. | `list_items` (default: true; when false, skips blank-before when block follows list item) |
 | **MD033-fix** | No inline HTML. Converts common tags to markdown, wraps rest in backticks. | `convert_elements`, `quote_remaining_as_code`, `allow_placeholder_tags` (e.g. `["path","value"]`; default list avoids treating invocation placeholders like `<path>` as HTML; use `false` or `[]` to disable) |
-| **MD036-fix** | Emphasis as heading. Converts a line that is only `**Bold**` / `*Italic*` into a heading. | `heading_level` (default: 2) |
+| **MD036-fix** | Emphasis as heading. Converts a line that is only `**Bold**` / `*Italic*` into a heading. **Semantic migration** — changes document structure (bold text becomes a heading); review diffs carefully. | `heading_level` (default: 2) |
 | **MD040-fix** | Fenced code language. Inserts default or inferred language after opening fence. | `default_language` (default: "fixme"), `infer_language` |
 | **MD041-fix** | First line heading. Prepends a top-level heading when missing. | `default_heading` (default: "Document") |
 | **MD042-fix** | No empty links. Replaces empty `]( )` / `](#)` with a URL. | `url_placeholder` (default: "fixme_url") |

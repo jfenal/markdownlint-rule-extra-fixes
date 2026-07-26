@@ -9,6 +9,7 @@ export default {
   tags: ["headings"],
   parser: "none",
   function: function MD041Fix(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     const defaultHeading = params.config?.default_heading ?? "Document";
     let i = 0;

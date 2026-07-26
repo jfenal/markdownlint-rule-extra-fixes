@@ -13,6 +13,7 @@ export default {
   tags: ["code", "language"],
   parser: "none",
   function: function MD040(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     const defaultLanguage = params.config?.default_language ?? "fixme";
     const useInference = params.config?.infer_language === true;

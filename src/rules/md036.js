@@ -11,6 +11,7 @@ export default {
   tags: ["headings", "emphasis"],
   parser: "none",
   function: function MD036Fix(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     const level = Math.min(6, Math.max(1, Number(params.config?.heading_level ?? 2)));
     const prefix = "#".repeat(level) + " ";

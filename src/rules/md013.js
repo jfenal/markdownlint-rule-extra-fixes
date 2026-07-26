@@ -13,6 +13,7 @@ export default {
   tags: ["line_length"],
   parser: "none",
   function: function MD013Fix(params, onError) {
+    if (params.config === false) return;
     const lines = params.lines;
     const maxLen = Number(params.config?.line_length ?? DEFAULT_LINE_LENGTH);
     let inCodeBlock = false;
