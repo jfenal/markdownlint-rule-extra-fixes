@@ -6,11 +6,21 @@ Custom [markdownlint](https://github.com/DavidAnson/markdownlint) rules that pro
 
 **AI attribution:** Some code and documentation in this repository were developed with AI-assisted tooling (e.g. Cursor). The maintainer reviews and takes responsibility for all contributions.
 
-**Note:** npm publication is not planned; install from this Git repo or use a local path (see below).
+**Note:** Published on npm as [`markdownlint-rule-extra-fixes`](https://www.npmjs.com/package/markdownlint-rule-extra-fixes).
 
 ## Install
 
 Install [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2) (if not already in your project) and the plugin using one of the options below.
+
+**From npm:**
+
+```bash
+npm install markdownlint-cli2 markdownlint-rule-extra-fixes
+
+# yarn / pnpm
+yarn add markdownlint-cli2 markdownlint-rule-extra-fixes
+pnpm add markdownlint-cli2 markdownlint-rule-extra-fixes
+```
 
 **Locally (same repo)**  
 Point `customRules` at this directory. In `.markdownlint-cli2.jsonc`:
