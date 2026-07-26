@@ -1,6 +1,6 @@
 {
   "name": "markdownlint-rule-extra-fixes",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Custom markdownlint rules that add fixInfo for MD040 and other rules the core does not fix",
   "license": "MIT",
   "type": "module",
